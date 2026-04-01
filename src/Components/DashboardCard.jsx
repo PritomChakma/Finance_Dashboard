@@ -11,62 +11,54 @@ import {
   Cell,
   Legend,
 } from "recharts";
+import { useTransaction } from "../Context/TransactionContext";
+
 
 const DashboardCard = () => {
-  const lineData = [
-    { month: "Jan", balance: 400 },
-    { month: "Feb", balance: 800 },
-    { month: "Mar", balance: 600 },
-    { month: "Apr", balance: 1000 },
-  ];
+  const { transactions } = useTransaction();
 
+  // ✅ Calculate Income, Expense, Balance
+  const income = transactions
+    .filter((t) => t.amount > 0)
+    .reduce((acc, curr) => acc + curr.amount, 0);
+
+  const expense = transactions
+    .filter((t) => t.amount < 0)
+    .reduce((acc, curr) => acc + curr.amount, 0);
+
+  const balance = income + expense;
+
+  // ✅ Pie Chart Data
   const pieData = [
-    { name: "Income", value: 1000 },
-    { name: "Expense", value: 300 },
-    { name: "Savings", value: 200 },
+    { name: "Income", value: income },
+    { name: "Expense", value: Math.abs(expense) },
   ];
 
-  const COLORS = ["#22c55e", "#ef4444", "#3b82f6"];
+  const COLORS = ["#22c55e", "#ef4444"];
+
+  // ✅ Line Chart Data
+  const lineData = transactions.map((t, i) => ({
+    name: `T${i + 1}`,
+    value: t.amount,
+  }));
 
   return (
-    <div >
-
+    <div className="space-y-6">
 
       {/* Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        {/* Balance */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition flex items-center gap-4">
-          <div className="bg-yellow-100 p-4 rounded-xl">
-            <i className="fa-solid fa-wallet text-yellow-500 text-2xl"></i>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 uppercase">Total Balance</p>
-            <p className="text-2xl font-bold">$500</p>
-          </div>
-        </div>
+        <Card title="Total Balance" value={balance} icon="wallet" color="yellow" />
 
-        {/* Income */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition flex items-center gap-4">
-          <div className="bg-green-100 p-4 rounded-xl">
-            <i className="fa-solid fa-arrow-up text-green-500 text-2xl"></i>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 uppercase">Total Income</p>
-            <p className="text-2xl font-bold">$1000</p>
-          </div>
-        </div>
+        <Card title="Total Income" value={income} icon="arrow-up" color="green" />
 
-        {/* Expense */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition flex items-center gap-4">
-          <div className="bg-red-100 p-4 rounded-xl">
-            <i className="fa-solid fa-arrow-down text-red-500 text-2xl"></i>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 uppercase">Total Expense</p>
-            <p className="text-2xl font-bold">$300</p>
-          </div>
-        </div>
+        <Card
+          title="Total Expense"
+          value={Math.abs(expense)}
+          icon="arrow-down"
+          color="red"
+        />
+
       </div>
 
       {/* Charts */}
@@ -80,16 +72,16 @@ const DashboardCard = () => {
             <ResponsiveContainer>
               <LineChart data={lineData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
+                <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
+
                 <Line
                   type="monotone"
-                  dataKey="balance"
+                  dataKey="value"
                   stroke="#3b82f6"
                   strokeWidth={3}
                   dot={{ r: 5 }}
-                  activeDot={{ r: 10 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -107,12 +99,10 @@ const DashboardCard = () => {
                   data={pieData}
                   dataKey="value"
                   nameKey="name"
-                  cx="50%"
-                  cy="50%"
                   outerRadius={80}
                   label
                 >
-                  {pieData.map((entry, index) => (
+                  {pieData.map((_, index) => (
                     <Cell key={index} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -124,6 +114,28 @@ const DashboardCard = () => {
           </div>
         </div>
 
+      </div>
+    </div>
+  );
+};
+
+// ✅ Reusable Card Component
+const Card = ({ title, value, icon, color }) => {
+  const bgColor = {
+    yellow: "bg-yellow-100 text-yellow-500",
+    green: "bg-green-100 text-green-500",
+    red: "bg-red-100 text-red-500",
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-2xl shadow-sm flex items-center gap-4">
+      <div className={`p-4 rounded-xl ${bgColor[color]}`}>
+        <i className={`fa-solid fa-${icon} text-2xl`}></i>
+      </div>
+
+      <div>
+        <p className="text-sm text-gray-500 uppercase">{title}</p>
+        <p className="text-2xl font-bold">${value}</p>
       </div>
     </div>
   );

@@ -1,7 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
+import { useRole } from "../Context/RoleContext";
 
 const Sidebar = () => {
+  const { role, setRole } = useRole();
   const location = useLocation();
+
 
   const isActive = (path) => location.pathname === path;
 
@@ -46,17 +49,52 @@ const Sidebar = () => {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-gray-200 pt-4">
+  <div className="border-t border-gray-200 pt-5 mt-5">
+  <p className="text-xs text-gray-400 uppercase mb-3 tracking-wider">
+    Select Role
+  </p>
 
-        <p className="text-xs text-gray-400 uppercase">
-          Current Role
-        </p>
+  {/* Button Toggle */}
+  <div className="flex gap-3">
+    {/* Admin Button */}
+    <button
+      onClick={() => setRole("admin")}
+      className={`flex-1 py-2 rounded-xl font-semibold transition-all duration-300 shadow-sm
+        ${
+          role === "admin"
+            ? "bg-blue-500 text-white shadow-lg scale-105"
+            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+        }`}
+    >
+      Admin
+    </button>
 
-        <p className="text-sm font-semibold text-gray-700">
-          Admin
-        </p>
+    {/* Viewer Button */}
+    <button
+      onClick={() => setRole("viewer")}
+      className={`flex-1 py-2 rounded-xl font-semibold transition-all duration-300 shadow-sm
+        ${
+          role === "viewer"
+            ? "bg-green-500 text-white shadow-lg scale-105"
+            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+        }`}
+    >
+      Viewer
+    </button>
+  </div>
 
-      </div>
+  {/* Current Role Display */}
+  <div className="mt-4">
+    <p className="text-sm text-gray-500">Current Role</p>
+    <p
+      className={`text-lg font-bold capitalize ${
+        role === "admin" ? "text-blue-500" : "text-green-500"
+      }`}
+    >
+      {role}
+    </p>
+  </div>
+</div>
     </div>
   );
 };
