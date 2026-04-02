@@ -6,7 +6,6 @@ import DashboardHeader from "../Components/DashboardHeader";
 const DashBoard = () => {
   return (
     <div>
-      <Nav></Nav>
       <div className="flex flex-col md:flex-row" >
         <div className="w-full md:w-[20%]">
           <Sidebar />
